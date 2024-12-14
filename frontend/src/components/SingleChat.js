@@ -75,13 +75,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchMessages();
 
     selectedChatCompare = selectedChat;
-  }, [selectedChat]);
+  }, [selectedChat,fetchMessages]);
 
   useEffect(() => {
     socket.on("message received", (newMessageReceived) => {
