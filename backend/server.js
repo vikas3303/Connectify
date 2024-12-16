@@ -6,7 +6,9 @@ const userRoutes = require("./Routes/userRoutes");
 const chatRoutes = require("./Routes/chatRoutes");
 const messageRoutes = require("./Routes/messageRoutes");
 const path = require("path");
+const fs = require("fs"); // File system module
 const { notFound, errorHandler } = require("./Middleware/errorMiddleware");
+
 const app = express();
 dotenv.config();
 connectDB();
@@ -21,9 +23,6 @@ const __dirname1 = path.resolve();
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname1, "../frontend/build")));
 
-  // app.get("*", (req, res) => {
-  //   res.sendFile(path.resolve(__dirname1, "frontend", "build", "index.html"));
-  // });
   app.get("/", (req, res) => {
     res.sendFile(path.resolve(__dirname1, "frontend", "build", "index.html"));
   });
@@ -33,14 +32,37 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 // ---------------------------------Deployment-------------------------
+
+// Endpoint to get folder structure
+function getFolderStructure(dir) {
+  const result = [];
+  const files = fs.readdirSync(dir);
+  files.forEach((file) => {
+    const filePath = path.join(dir, file);
+    const stats = fs.statSync(filePath);
+    if (stats.isDirectory()) {
+      result.push({ [file]: getFolderStructure(filePath) });
+    } else {
+      result.push(file);
+    }
+  });
+  return result;
+}
+
+app.get("/folder-structure", (req, res) => {
+  const directoryPath = path.resolve(__dirname1); // Starting from project root
+  const folderStructure = getFolderStructure(directoryPath);
+  res.json({ folderStructure });
+});
+
 app.use(notFound);
 app.use(errorHandler);
 
 app.get("/api/chat/:id", (req, res) => {
-  //   console.log(req.params.id);
   const singleChat = chats.find((c) => c._id === req.params.id);
   res.send(singleChat);
 });
+
 const PORT = process.env.PORT || 5000;
 console.log("NODE_ENV:", process.env.NODE_ENV);
 const server = app.listen(PORT, console.log(`Server started at port ${PORT}`));
