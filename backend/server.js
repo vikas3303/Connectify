@@ -33,7 +33,7 @@ const __dirname1 = path.resolve(__dirname, "..", "frontend", "build");
 app.use(express.static(__dirname1));
 
 app.get("*", (req, res) =>
-  res.sendFile(path.join(__dirname1, "index.html"))
+  res.sendFile(path.join(__dirname1, "../frontend/build/index.html"))
 );
 
 // ---------------------------------Deployment-------------------------
